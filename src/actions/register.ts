@@ -1,12 +1,13 @@
 'use server'
 
-import { LoginFormSchema, type LoginFormSchemaType } from '@/schemas/login'
+import { RegisterFormSchema } from '@/schemas/register'
 import { redirect } from 'next/navigation'
 
-export type LoginActionState = {
+export type RegisterActionState = {
   form?: {
     email?: string
     password?: string
+    confirmPassword?: string
   }
   errors?: {
     email?: string[]
@@ -15,9 +16,9 @@ export type LoginActionState = {
   message?: string
 }
 
-export async function login(_prev: LoginActionState, formData: FormData): Promise<LoginActionState> {
+export async function register(_prev: RegisterActionState, formData: FormData): Promise<RegisterActionState> {
   const form = Object.fromEntries(formData)
-  const validationResult = LoginFormSchema.safeParse(form)
+  const validationResult = RegisterFormSchema.safeParse(form)
   if (!validationResult.success) {
     return {
       form,
@@ -25,7 +26,7 @@ export async function login(_prev: LoginActionState, formData: FormData): Promis
     }
   }
 
-  // 模拟登录过程，延时3秒
+  // 模拟注册过程，延时3秒
   await new Promise((resolve) => setTimeout(resolve, 3000))
 
   if (validationResult.data.email.includes('qq')) {
