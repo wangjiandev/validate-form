@@ -1,27 +1,19 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { RegisterFormSchema, type RegisterFormSchemaType } from '@/schemas/register'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { startTransition, useActionState, useRef } from 'react'
-import { login } from '@/actions/login'
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { useActionState } from 'react'
+import { register } from '@/actions/register'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
-
-const defaultValues: RegisterFormSchemaType = {
-  email: '',
-  password: '',
-  confirmPassword: '',
-}
+import { FormMessage } from './ui/form'
 
 export function RegisterForm({ className, ...props }: React.ComponentProps<'div'>) {
-  const [state, formAction, isPending] = useActionState(login, {})
+  const [state, formAction, isPending] = useActionState(register, {})
+
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
@@ -35,10 +27,12 @@ export function RegisterForm({ className, ...props }: React.ComponentProps<'div'
               <div className="grid gap-3">
                 <Label htmlFor="email">邮箱</Label>
                 <Input placeholder="邮箱" name="email" />
+                {state.errors?.email && state.errors?.email.join(',')}
               </div>
               <div className="grid gap-3">
                 <Label htmlFor="password">密码</Label>
                 <Input placeholder="密码" name="password" />
+                {state.errors?.password && state.errors.password.join(',')}
               </div>
               <div className="grid gap-3">
                 <Label htmlFor="confirmPassword">确认密码</Label>

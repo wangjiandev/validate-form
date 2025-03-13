@@ -7,12 +7,13 @@ import { LoginFormSchema, type LoginFormSchemaType } from '@/schemas/login'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { startTransition, useActionState, useRef } from 'react'
+import { startTransition, useActionState, useEffect, useRef } from 'react'
 import { login } from '@/actions/login'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
+
 const defaultValues: LoginFormSchemaType = {
   email: '',
   password: '',
@@ -20,23 +21,35 @@ const defaultValues: LoginFormSchemaType = {
 
 export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
   const [state, formAction, isPending] = useActionState(login, {})
-  const formRef = useRef<HTMLFormElement>(null)
 
-  // 1. Define your form.
   const form = useForm<LoginFormSchemaType>({
     resolver: zodResolver(LoginFormSchema),
     mode: 'all',
     defaultValues,
   })
 
-  // 2. Define a submit handler.
-  function onSubmit(values: LoginFormSchemaType) {
-    form.setError('email', {
-      message: '请勿使用QQ邮箱登录',
-    })
-    console.log('Client Side Validated Values:', values)
-    console.log('Client Side Validated Errors:', form.formState.errors)
+  const submit = (data: LoginFormSchemaType) => {
+    console.log(data)
+    const formData = new FormData()
+    formData.append('email', data.email)
+    formData.append('password', data.password)
+    startTransition(() => formAction(formData))
   }
+
+  // 使用 useEffect 处理状态更新
+  useEffect(() => {
+    if (state.errors) {
+      Object.entries(state.errors).forEach(([field, message]) => {
+        console.log(field, message)
+        if (message) {
+          form.setError(field as keyof LoginFormSchemaType, {
+            type: 'manual',
+            message: message.join(','),
+          })
+        }
+      })
+    }
+  }, [state.errors, form]) // 依赖 state.errors 和 form
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
@@ -47,15 +60,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form
-              ref={formRef}
-              onSubmit={(e) => {
-                e.preventDefault()
-                form.handleSubmit(() => {
-                  startTransition(() => formAction(new FormData(formRef.current!)))
-                })(e)
-              }}
-              action={formAction}>
+            <form onSubmit={form.handleSubmit(submit)}>
               <div className="flex flex-col gap-6">
                 <div className="grid gap-3">
                   <FormField
