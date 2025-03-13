@@ -19,7 +19,11 @@ const defaultValues: LoginFormSchemaType = {
   password: '',
 }
 
-export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
+interface LoginFormProps extends React.ComponentProps<'div'> {
+  className?: string
+}
+
+export function LoginForm({ className, ...props }: LoginFormProps) {
   const [state, formAction, isPending] = useActionState(login, {})
 
   const form = useForm<LoginFormSchemaType>({

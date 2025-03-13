@@ -17,7 +17,7 @@ export type LoginActionState = {
 }
 
 export async function login(_state: LoginActionState, formData: FormData): Promise<LoginActionState> {
-  const form = Object.fromEntries(formData.entries())
+  const form = Object.fromEntries(formData)
   const validationResult = LoginFormSchema.safeParse(form)
 
   console.log('Server Side Validated form:', form)
@@ -31,6 +31,7 @@ export async function login(_state: LoginActionState, formData: FormData): Promi
   // 模拟登录过程，延时3秒
   await new Promise((resolve) => setTimeout(resolve, 3000))
 
+  // 插入数据库报错 try catch
   if (validationResult.data.email.includes('qq')) {
     return {
       errors: {
